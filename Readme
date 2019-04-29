@@ -1,0 +1,2 @@
+python baidu.py -k inurl::7001 -p 2 # k代表搜索关键字 ，p代表搜索页数
+python baidu.py -k inurl:?id -p 5
