@@ -19,9 +19,11 @@ class crawler:
     headersParameters = {    #发送HTTP请求时的HEAD信息，用于伪装为浏览器
         'Connection': 'Keep-Alive',
         'Accept': 'text/html, application/xhtml+xml, */*',
-        'Accept-Language': 'en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3',
+        'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
+        'Is_referer': "https://www.baidu.com/",
         'Accept-Encoding': 'gzip, deflate',
-        'User-Agent': 'Mozilla/6.1 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0'
+
     }
     def __init__(self, keyword):
         self.url = u'https://www.baidu.com/baidu?wd='+quote(keyword)+'&tn=monline_dg&ie=utf-8'
@@ -51,7 +53,15 @@ class crawler:
             sys.exit()
         else:
             self.set_current_url(self.next_page_url)
-            
+            #print(self.next_page_url)
+            #pn =1
+            #while pn == totalpages:
+            #self.next_page_url = "https://www.baidu/s"
+                #self.next_page_url = 'https://www.baidu.coms/?wd='+str(keyword)+"&"+str(pn*10)
+                #self.set_current_url(self.next_page_url)
+                #print(self.next_page_url)
+                #pn = pn + 1
+
     def is_finish(self):
         '''判断是否爬取完毕'''
         if self.current_page >= self.total_pages:
@@ -64,6 +74,7 @@ class crawler:
         r = requests.get(self.url ,timeout=self.timeout, headers=self.headersParameters)
         if r.status_code==200:
             self.html = r.text
+            #print(r.text)
             self.current_page += 1
         else:
             self.html = u''
@@ -71,15 +82,16 @@ class crawler:
             
     def get_urls(self):
         '''从当前html中解析出搜索结果的url，保存到o_urls'''
-        o_urls = re.findall('href\=\"(http\:\/\/www\.baidu\.com\/link\?url\=.*?)\" class\=\"c\-showurl\"', self.html)
+        #print(self.html)
+        o_urls = re.findall('href\=\"(http\:\/\/www\.baidu\.com\/link\?url\=.*?)\"', self.html)
         o_urls = list(set(o_urls))  #去重
         self.o_urls = o_urls
-        #取下一页地址
-        next = re.findall(' href\=\"(\/s\?wd\=[\w\d\%\&\=\_\-]*?)\" class\=\"n\"', self.html)
-        if len(next) > 0:
-            self.next_page_url = 'https://www.baidu.com'+next[-1]
-        else:
-            self.next_page_url = ''
+        pn = 1
+        while pn == totalpages:
+            self.next_page_url = 'https://www.baidu.coms/?wd=' + str(keyword) + "&" + str(pn * 10)
+            self.set_current_url(self.next_page_url)
+            pn = pn + 1
+        self.next_page_url = ''
             
     def get_real(self, o_url):
         '''获取重定向url指向的网址'''
@@ -101,8 +113,10 @@ class crawler:
         '''输出当前urls中的url'''
         f1 = open("待检测的地址.txt","a")
         for url in self.urls:
-            print (url)
+            #print (url)
+            pass
         for url in self.urls:
+            #if str(keyword) in str(url):
             f1.write(url+"\n")
         f1.close()
         
